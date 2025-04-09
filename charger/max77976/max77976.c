@@ -507,11 +507,11 @@ static int max77976_CONFIG_00(const struct device *dev, int *val)
 // 0x09 (chaged from battery)
 // First, read the reg, keep the upper 4 bits, and OR in the mode to the lower 4 bits
 // .................................................................................
-static int max77976_set_mode(const struct device *dev, int *val)
+static int max77976_set_mode(const struct device *dev, int val)
 {
     int err, old, buf[2];
     
-    if (*val > 0x0A)
+    if (val > 0x0A)
     {
         return -1;
     }
@@ -523,7 +523,7 @@ static int max77976_set_mode(const struct device *dev, int *val)
     old = old & 0xF0;
 
     buf[0] = CHG_CNFG_09;
-    buf[1] = old & (*val & 0x0F);
+    buf[1] = old & (val & 0x0F);
 
     err = i2c_write_dt(&cfg->i2c, buf, 1);
     return err;
