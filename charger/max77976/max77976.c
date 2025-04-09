@@ -308,7 +308,8 @@ static int max77976_set_input_reg_current(const struct device *dev, int *val)
    // err = max77976_get_input_reg_current(dev, old);
     err = max77976_get_input_reg_current(dev, &old2);
 
-    *old = *old & 0xC0;
+//    *old = *old & 0xC0;
+    old2 = old2 & 0xC0;
 
     buf[0] = CHG_CNFG_09;
 //    buf[1] = *old & (*val & 0xFF);
