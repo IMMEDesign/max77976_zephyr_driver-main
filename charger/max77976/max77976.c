@@ -564,22 +564,22 @@ static int max77976_get_property(const struct device *dev, const charger_prop_t 
         return err;
 }
 
-static int max77976_set_property(const struct device *dev, const charger_prop_t prop, const union charger_propval *val)
+static int max77976_set_property(const struct device *dev, const charger_prop_t prop, const union charger_propval val)
 {
     int err;
 
     switch (prop) {
     case CHARGER_PROP_CONSTANT_CHARGE_CURRENT_UA:
-        err = max77976_set_charge_control_limit(dev, &val->const_charge_current_ua);
+        err = max77976_set_charge_control_limit(dev, val->const_charge_current_ua);
         break;
     case CHARGER_PROP_INPUT_REGULATION_CURRENT_UA :
-        err = max77976_set_input_reg_current(dev, &val->input_current_regulation_current_ua);
+        err = max77976_set_input_reg_current(dev, val->input_current_regulation_current_ua);
         break;
     case CHARGER_PROP_CUSTOM_BEGIN :
-        err = max77976_set_CC(dev, &val->const_charge_current_ua);
+        err = max77976_set_CC(dev, val->const_charge_current_ua);
         break;
     case CHARGER_PROP_CHARGE_TYPE:
-        err = max77976_set_mode(dev, &val->charge_type);
+        err = max77976_set_mode(dev, val->charge_type);
     default:
         err = -EINVAL;
 }
