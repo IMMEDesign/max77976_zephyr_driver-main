@@ -300,7 +300,9 @@ static int max77976_get_input_reg_current(const struct device *dev , int *val)
 // .................................................................................
 static int max77976_set_input_reg_current(const struct device *dev, int *val)
 {
-    int err, buf[2];
+    int err;
+    uint8_t buf[2];
+
     const struct max77976_config *cfg = dev->config;
 
     buf[0] = CHG_CNFG_09;
@@ -343,7 +345,9 @@ static int max77976_get_charge_control_limit(const struct device *dev, int *val)
 // .................................................................................
 static int max77976_set_charge_control_limit(const struct device *dev, int *val)
 {
-    int err, buf[2];
+    int err;
+    uint8_t buf[2];
+
     const struct max77976_config *cfg = dev->config;
 
     buf[0] = CHG_CNFG_02;
@@ -388,7 +392,8 @@ static int max77976_get_charge_in(const struct device *dev, int *val)
 // .................................................................................
 static int max77976_set_charger_protection(const struct device *dev, int *val)
 {
-    int err, buf[2];
+    int err;
+    uint8_t buf[2];
     int reg;
     const struct max77976_config *cfg = dev->config;
 
@@ -409,7 +414,8 @@ static int max77976_set_charger_protection(const struct device *dev, int *val)
 // .................................................................................
 static int max77976_set_fast_charge_current(const struct device *dev, int *val)
 {
-    int err, buf[2];
+    int err;
+    uint8_t buf[2];
     int reg;
     const struct max77976_config *cfg = dev->config;
 
@@ -429,7 +435,8 @@ static int max77976_set_fast_charge_current(const struct device *dev, int *val)
 // .................................................................................
 static int max77976_set_termination_voltage(const struct device *dev, int *val)
 {
-    int err, buf[2];
+    int err;
+    uint8_t buf[2];
     const struct max77976_config *cfg = dev->config;
 
     buf[0] = CHG_CNFG_04;
@@ -509,7 +516,8 @@ static int max77976_CONFIG_00(const struct device *dev, int *val)
 // .................................................................................
 static int max77976_set_mode(const struct device *dev, int val)
 {
-    int err, old, buf[2];
+    int err, old;
+    uint8_t buf[2];
     
     if (val > 0x0A)
     {
