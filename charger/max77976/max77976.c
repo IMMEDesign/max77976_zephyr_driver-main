@@ -493,8 +493,6 @@ static int max77976_CONFIG_00(const struct device *dev, int *val)
 
     err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
 
-    read_buff[0] = (read_buff[0] >> 6) & 0x01;
-
     if(err < 0) 
     {
         return err;
