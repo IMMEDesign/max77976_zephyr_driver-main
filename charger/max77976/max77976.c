@@ -405,7 +405,8 @@ static int max77976_get_property(const struct device *dev, const charger_prop_t 
             err = max77976_get_health(dev, &val->health);
             break;
         case CHARGER_PROP_ONLINE:
-            err = max77976_get_charge_in(dev, &val->online);        // !dbg!
+            err = max77976_get_online(dev, &val->online);
+//            err = max77976_get_charge_in(dev, &val->online);        // !dbg!
             break;
         case CHARGER_PROP_CONSTANT_CHARGE_CURRENT_UA :
             err = max77976_get_charge_control_limit(dev, &val->const_charge_current_ua);
