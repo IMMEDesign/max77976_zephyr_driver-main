@@ -476,6 +476,63 @@ static int max77976_set_CC(const struct device *dev, int *val)
     max77976_set_charger_protection(dev, &lock); //
 }
 // .................................................................................
+// Read register CHG_CNFG_00
+// CHGIN_OK bit (6) of register CHG_INT_OK
+// Example results: CHARGER_ONLINE_OFFLINE, CHARGER_ONLINE_FIXED
+// .................................................................................
+static int max77976_CONFIG_00(const struct device *dev, int *val)
+{
+    int err;
+
+    uint8_t write_buff[1];
+    uint8_t read_buff[1];
+
+    write_buff[0] = CHG_CNFG_00;
+
+    const struct max77976_config *cfg = dev->config;
+
+    err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
+
+    read_buff[0] = (read_buff[0] >> 6) & 0x01;
+
+    if(err < 0) 
+    {
+        return err;
+    }
+    *val = read_buff[0];
+
+}
+// .................................................................................
+// Set the mode
+// 0x04 (default)
+// 0x05 (charged from wall)
+// 0x09 (chaged from battery)
+// First, read the reg, keep the upper 4 bits, and OR in the mode to the lower 4 bits
+// .................................................................................
+static int max77976_set_mode(const struct device *dev, int *val)
+{
+    int err, old, buf[2];
+    
+    if (*val > 0x0A)
+    {
+        return -1;
+    }
+
+    const struct max77976_config *cfg = dev->config;
+
+    err = max77976_CONFIG_00(dev, &old);
+
+    old = old & 0xF0;
+
+    buf[0] = CHG_CNFG_09;
+    buf[1] = old & (*val & 0x0F);
+
+    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    return err;
+
+
+}
+// .................................................................................
 
 static int max77976_get_property(const struct device *dev, const charger_prop_t prop, const union charger_propval *val)
 {
@@ -523,6 +580,8 @@ static int max77976_set_property(const struct device *dev, const charger_prop_t 
     case CHARGER_PROP_CUSTOM_BEGIN :
         err = max77976_set_CC(dev, &val->const_charge_current_ua);
         break;
+    case CHARGER_PROP_CHARGE_TYPE:
+        err = max77976_set_mode(dev, &val->charge_type);
     default:
         err = -EINVAL;
 }
