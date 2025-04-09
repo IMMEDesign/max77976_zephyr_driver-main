@@ -527,6 +527,9 @@ static int max77976_set_property(const struct device *dev, const charger_prop_t 
     case CHARGER_PROP_INPUT_REGULATION_CURRENT_UA :
         err = max77976_set_input_reg_current(dev, &val->input_current_regulation_current_ua);
         break;
+    case CHARGER_PROP_CUSTOM_BEGIN :
+        err = max77976_set_CC(dev, &val->const_charge_current_ua);
+        break;
     default:
         err = -EINVAL;
 }
@@ -536,9 +539,6 @@ return err;
 
 static int max77976_init(const struct device *dev)
 {
-    int val;
-
-    max77976_set_CC(dev, val);
     return 0;
 }
 
