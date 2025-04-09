@@ -367,6 +367,9 @@ static int max77976_set_charge_control_limit(const struct device *dev, int *val)
     
 }
 
+// Determine if charger is receiving power in, by reading the 
+// CHGIN_OK bit (6) of register CHG_INT_OK
+// Example results: CHARGER_ONLINE_OFFLINE, CHARGER_ONLINE_FIXED
 static int max77976_get_charge_in(const struct device *dev, int *val)
 {
     int err;
@@ -405,8 +408,10 @@ static int max77976_get_property(const struct device *dev, const charger_prop_t 
             err = max77976_get_health(dev, &val->health);
             break;
         case CHARGER_PROP_ONLINE:
-            err = max77976_get_online(dev, &val->online);
-//            err = max77976_get_charge_in(dev, &val->online);        // !dbg!
+//            err = max77976_get_online(dev, &val->online);
+            // Calling this instead, because want to determine if charger is receiving power in,
+            // by reading the CHGIN_OK bit (6) of register CHG_INT_OK
+            err = max77976_get_charge_in(dev, &val->online);
             break;
         case CHARGER_PROP_CONSTANT_CHARGE_CURRENT_UA :
             err = max77976_get_charge_control_limit(dev, &val->const_charge_current_ua);
