@@ -294,29 +294,24 @@ static int max77976_get_input_reg_current(const struct device *dev , int *val)
     return err;
 }
 
+// .................................................................................
+// Our code already divides the CC (mA) value by 50, so here, val is 0..255
+// corresponding to the coded values (e.g. val = 0x14 = 1000 mA)
+// .................................................................................
 static int max77976_set_input_reg_current(const struct device *dev, int *val)
 {
     int err, buf[2];
-    int old;
-    if ((*val > 63) || (*val < 0))
-    {
-        return -1;
-    }
-    
     const struct max77976_config *cfg = dev->config;
 
-    err = max77976_get_input_reg_current(dev, &old);
-
-    old = old & 0xC0;
-
     buf[0] = CHG_CNFG_09;
-    buf[1] = old & (*val & 0xFF);
+    buf[1] = *val;
 
     err = i2c_write_dt(&cfg->i2c, buf, 1);
     return err;
-    
 }
+// .................................................................................
 
+// Reads reg value and converts to uA
 static int max77976_get_charge_control_limit(const struct device *dev, int *val)
 {
     int err;
@@ -331,7 +326,7 @@ static int max77976_get_charge_control_limit(const struct device *dev, int *val)
     err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
     read_buff[0] = read_buff[0] & 0x7F;
 
-    if(read_buff[0] > 2)
+    if(read_buff[0] < 2)
     {
         *val = 100000;
     }
@@ -342,27 +337,21 @@ static int max77976_get_charge_control_limit(const struct device *dev, int *val)
     return err;
 }
 
+// .................................................................................
+// Our code already divides the CC (mA) value by 50, so here, val is 0..255
+// corresponding to the coded values (e.g. val = 0x14 = 1000 mA)
+// .................................................................................
 static int max77976_set_charge_control_limit(const struct device *dev, int *val)
 {
     int err, buf[2];
-    int old;
-    if ((*val > 127) || (*val < 0))
-    {
-        return -1;
-    }
-    
     const struct max77976_config *cfg = dev->config;
 
-    err = max77976_get_input_reg_current(dev, &old);
-
-    old = old & 0x80;
-
-    buf[0] = CHG_CNFG_09;
-    buf[1] = old & (*val & 0xFF);
+    buf[0] = CHG_CNFG_02;
+    buf[1] = *val;
 
     err = i2c_write_dt(&cfg->i2c, buf, 1);
     return err;
-    
+
 }
 
 // .................................................................................
@@ -470,14 +459,18 @@ static int max77976_set_CC(const struct device *dev, int *val)
     // 1. Charger Protection - Unlock: (CHG_CNFG_06) reg 0x1C, bits 2,3
     lock = 0;
     max77976_set_charger_protection(dev,lock);
+
     // 2. Fast Charging current: (CHG_CNFG_02) reg 0x18
     max_cc = *val/50;
     max77976_set_charge_control_limit(dev, max_cc);
+
     // 3. Input Limit: (CHG_CNFG_09) reg 0x1F
     max_cc += 2;
     max77976_set_input_reg_current(dev, max_cc);
+
     // 4. Termination Voltage: (CHG_CNFG_04) reg 0x1A, bit 6
     max77976_set_termination_voltage(dev, max_cc);
+
     // 5. Charger Protection - Lock: (CHG_CNFG_06) reg 0x1C, bits 2,3)
     lock = 1;
     max77976_set_charger_protection(dev, lock); //
