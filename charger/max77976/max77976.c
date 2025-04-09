@@ -522,7 +522,7 @@ static int max77976_set_mode(const struct device *dev, int val)
 
     old = old & 0xF0;
 
-    buf[0] = CHG_CNFG_09;
+    buf[0] = CHG_CNFG_00;
     buf[1] = old | (val & 0x0F);
 
     err = i2c_write_dt(&cfg->i2c, buf, 2);
