@@ -297,6 +297,7 @@ static int max77976_get_input_reg_current(const struct device *dev , int *val)
 static int max77976_set_input_reg_current(const struct device *dev, int *val)
 {
     int err, *old, buf[2];
+    int old2;
     if ((*val > 63) || (*val < 0))
     {
         return -1;
@@ -304,12 +305,14 @@ static int max77976_set_input_reg_current(const struct device *dev, int *val)
     
     const struct max77976_config *cfg = dev->config;
 
-    err = max77976_get_input_reg_current(dev, old);
+   // err = max77976_get_input_reg_current(dev, old);
+    err = max77976_get_input_reg_current(dev, &old2);
 
     *old = *old & 0xC0;
 
     buf[0] = CHG_CNFG_09;
-    buf[1] = *old & (*val & 0xFF);
+//    buf[1] = *old & (*val & 0xFF);
+    buf[1] = old2 & (*val & 0xFF);
 
     err = i2c_write_dt(&cfg->i2c, buf, 1);
     return err;
