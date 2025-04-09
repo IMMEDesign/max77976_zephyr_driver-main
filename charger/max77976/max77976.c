@@ -507,11 +507,11 @@ static int max77976_CONFIG_00(const struct device *dev, int *val)
 // 0x09 (chaged from battery)
 // First, read the reg, keep the upper 4 bits, and OR in the mode to the lower 4 bits
 // .................................................................................
-static int max77976_set_mode(const struct device *dev, int val)
+static int max77976_set_mode(const struct device *dev, int *val)
 {
     int err, old, buf[2];
     
-    if (val > 0x0A)
+    if (*val > 0x0A)
     {
         return -1;
     }
@@ -523,7 +523,7 @@ static int max77976_set_mode(const struct device *dev, int val)
     old = old & 0xF0;
 
     buf[0] = CHG_CNFG_09;
-    buf[1] = old & (val & 0x0F);
+    buf[1] = old & (*val & 0x0F);
 
     err = i2c_write_dt(&cfg->i2c, buf, 1);
     return err;
@@ -564,22 +564,22 @@ static int max77976_get_property(const struct device *dev, const charger_prop_t 
         return err;
 }
 
-static int max77976_set_property(const struct device *dev, const charger_prop_t prop, const union charger_propval val)
+static int max77976_set_property(const struct device *dev, const charger_prop_t prop, const union charger_propval *val)
 {
     int err;
 
     switch (prop) {
     case CHARGER_PROP_CONSTANT_CHARGE_CURRENT_UA:
-        err = max77976_set_charge_control_limit(dev, val->const_charge_current_ua);
+        err = max77976_set_charge_control_limit(dev, &val->const_charge_current_ua);
         break;
     case CHARGER_PROP_INPUT_REGULATION_CURRENT_UA :
-        err = max77976_set_input_reg_current(dev, val->input_current_regulation_current_ua);
+        err = max77976_set_input_reg_current(dev, &val->input_current_regulation_current_ua);
         break;
     case CHARGER_PROP_CUSTOM_BEGIN :
-        err = max77976_set_CC(dev, val->const_charge_current_ua);
+        err = max77976_set_CC(dev, &val->const_charge_current_ua);
         break;
     case CHARGER_PROP_CHARGE_TYPE:
-        err = max77976_set_mode(dev, val->charge_type);
+        err = max77976_set_mode(dev, &val->charge_type);
     default:
         err = -EINVAL;
 }
