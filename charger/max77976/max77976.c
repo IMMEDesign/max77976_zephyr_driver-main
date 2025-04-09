@@ -363,6 +363,30 @@ static int max77976_set_charge_control_limit(const struct device *dev, int *val)
     
 }
 
+static int max77976_get_charge_in(const struct device *dev, int *val)
+{
+    int err;
+
+    uint8_t write_buff[1];
+    uint8_t read_buff[1];
+
+    write_buff[0] = CHG_INT_OK;
+
+    const struct max77976_config *cfg = dev->config;
+
+    err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
+
+    read_buff[0] = (read_buff[0] >> 6) & 0x01;
+
+    if(err < 0) 
+    {
+        return err;
+    }
+    *val = (read_buff[0] ? 1 : 0);
+
+}
+
+
 static int max77976_get_property(const struct device *dev, const charger_prop_t prop, const union charger_propval *val)
 {
     int err;
@@ -377,7 +401,7 @@ static int max77976_get_property(const struct device *dev, const charger_prop_t 
             err = max77976_get_health(dev, &val->health);
             break;
         case CHARGER_PROP_ONLINE:
-            err = max77976_get_online(dev, &val->online);
+            err = max77976_get_charge_in(dev, &val->online);        // !dbg!
             break;
         case CHARGER_PROP_CONSTANT_CHARGE_CURRENT_UA :
             err = max77976_get_charge_control_limit(dev, &val->const_charge_current_ua);
