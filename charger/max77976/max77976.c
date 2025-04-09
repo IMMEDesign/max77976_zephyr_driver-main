@@ -306,7 +306,7 @@ static int max77976_set_input_reg_current(const struct device *dev, int *val)
     buf[0] = CHG_CNFG_09;
     buf[1] = *val;
 
-    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
 }
 // .................................................................................
@@ -349,7 +349,7 @@ static int max77976_set_charge_control_limit(const struct device *dev, int *val)
     buf[0] = CHG_CNFG_02;
     buf[1] = *val;
 
-    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
 
 }
@@ -400,7 +400,7 @@ static int max77976_set_charger_protection(const struct device *dev, int *val)
     buf[0] = CHG_CNFG_06;
     buf[1] = (*val == 0) ? 0x00 : 0x0C;
 
-    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
 }
 // .................................................................................
@@ -421,7 +421,7 @@ static int max77976_set_fast_charge_current(const struct device *dev, int *val)
     buf[0] = CHG_CNFG_06;
     buf[1] = (*val == 0) ? 0x00 : 0x0C;
 
-    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
 }
 // .................................................................................
@@ -435,7 +435,7 @@ static int max77976_set_termination_voltage(const struct device *dev, int *val)
     buf[0] = CHG_CNFG_04;
     buf[1] = 0x14 | 0x20;     // this will set the limit to 4.40V
 
-    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
 }
 
@@ -525,7 +525,7 @@ static int max77976_set_mode(const struct device *dev, int val)
     buf[0] = CHG_CNFG_09;
     buf[1] = old | (val & 0x0F);
 
-    err = i2c_write_dt(&cfg->i2c, buf, 1);
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
 
 
