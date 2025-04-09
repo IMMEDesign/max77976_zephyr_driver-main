@@ -480,7 +480,7 @@ static int max77976_set_CC(const struct device *dev, int *val)
     max77976_set_termination_voltage(dev, max_cc);
     // 5. Charger Protection - Lock: (CHG_CNFG_06) reg 0x1C, bits 2,3)
     lock = 1;
-    max77976_set_charger_protection(dev, lock);
+    max77976_set_charger_protection(dev, lock); //
 }
 // .................................................................................
 
