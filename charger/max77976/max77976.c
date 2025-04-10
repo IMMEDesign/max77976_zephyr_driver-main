@@ -269,6 +269,10 @@ static int max77976_get_online(const struct device *dev, int *val)
 
 }
 
+// .................................................................................
+// Reads reg value
+// (Modified this so it just returns the actual register value)
+// .................................................................................
 static int max77976_get_input_reg_current(const struct device *dev , int *val)
 {
     int err;
@@ -283,14 +287,15 @@ static int max77976_get_input_reg_current(const struct device *dev , int *val)
     err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
     read_buff[0] = read_buff[0] & 0x3F;
 
-    if(read_buff[0] > 2)
-    {
-        *val = 100000;
-    }
-    else
-    {
-        *val = read_buff[0] * 50000;
-    }
+//    if(read_buff[0] > 2)
+//    {
+//        *val = 100000;
+//    }
+//    else
+//    {
+//        *val = read_buff[0] * 50000;
+//    }
+    *val = read_buff[0];
     return err;
 }
 
@@ -313,7 +318,10 @@ static int max77976_set_input_reg_current(const struct device *dev, int *val)
 }
 // .................................................................................
 
-// Reads reg value and converts to uA
+// .................................................................................
+// Reads reg value
+// (Modified this so it just returns the actual register value)
+// .................................................................................
 static int max77976_get_charge_control_limit(const struct device *dev, int *val)
 {
     int err;
@@ -328,14 +336,15 @@ static int max77976_get_charge_control_limit(const struct device *dev, int *val)
     err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
     read_buff[0] = read_buff[0] & 0x7F;
 
-    if(read_buff[0] < 2)
-    {
-        *val = 100000;
-    }
-    else
-    {
-        *val = read_buff[0] * 50000;
-    }
+//    if(read_buff[0] < 2)
+//    {
+//        *val = 100000;
+//    }
+//    else
+//    {
+//        *val = read_buff[0] * 50000;
+//    }
+    *val = read_buff[0];
     return err;
 }
 
@@ -431,6 +440,27 @@ static int max77976_set_fast_charge_current(const struct device *dev, int *val)
     return err;
 }
 // .................................................................................
+// Reads reg value
+// .................................................................................
+static int max77976_get_CHG_CNFG_04(const struct device *dev , int *val)
+{
+    int err;
+
+    uint8_t write_buff[1];
+    uint8_t read_buff[1];
+
+    write_buff[0] = CHG_CNFG_04;
+
+    const struct max77976_config *cfg = dev->config;
+
+    err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
+    read_buff[0] = read_buff[0] & 0x3F;
+
+    *val = read_buff[0];
+    return err;
+}
+
+// .................................................................................
 // Set the Temrination Voltage
 // .................................................................................
 static int max77976_set_termination_voltage(const struct device *dev, int *val)
@@ -453,7 +483,7 @@ static int max77976_set_termination_voltage(const struct device *dev, int *val)
 static int max77976_set_CC(const struct device *dev, int *val)
 {
     int err, buf[2];
-    int lock, max_cc;
+    int lock, max_cc, temp;
     const struct max77976_config *cfg = dev->config;
 
     if (*val < 100) {
@@ -471,12 +501,21 @@ static int max77976_set_CC(const struct device *dev, int *val)
     max_cc = *val/50;
     max77976_set_charge_control_limit(dev, &max_cc);
 
+    // 2b. Verify
+    max77976_get_charge_control_limit(dev, &temp);        // !dbg!
+
     // 3. Input Limit: (CHG_CNFG_09) reg 0x1F
     max_cc += 2;
     max77976_set_input_reg_current(dev, &max_cc);
 
+    // 3b. Verify
+    max77976_get_input_reg_current(dev, &temp);        // !dbg!
+
     // 4. Termination Voltage: (CHG_CNFG_04) reg 0x1C, bit 6
     max77976_set_termination_voltage(dev, &max_cc);
+
+    // 4b. Verify
+    max77976_get_CHG_CNFG_04(dev, &temp);        // !dbg!
 
     // 5. Charger Protection - Lock: (CHG_CNFG_06) reg 0x1C, bits 2,3)
     lock = 1;
@@ -487,7 +526,7 @@ static int max77976_set_CC(const struct device *dev, int *val)
 // CHGIN_OK bit (6) of register CHG_INT_OK
 // Example results: CHARGER_ONLINE_OFFLINE, CHARGER_ONLINE_FIXED
 // .................................................................................
-static int max77976_CONFIG_00(const struct device *dev, int *val)
+static int max77976_get_CONFIG_00(const struct device *dev, int *val)
 {
     int err;
 
@@ -526,7 +565,7 @@ static int max77976_set_mode(const struct device *dev, int val)
 
     const struct max77976_config *cfg = dev->config;
 
-    err = max77976_CONFIG_00(dev, &old);
+    err = max77976_get_CONFIG_00(dev, &old);
 
     old = old & 0xF0;
 
