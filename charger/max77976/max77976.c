@@ -397,7 +397,8 @@ static int max77976_get_charge_in(const struct device *dev, int *val)
 
 // .................................................................................
 // Lock / Unlock Charger Protection
-// 0 = Unlock, 1 = Lock
+// 0 = Unlock (write 0x0C to register bits)
+// 1 = Lock (write 0x00 to register bits)
 // .................................................................................
 static int max77976_set_charger_protection(const struct device *dev, int *val)
 {
@@ -412,7 +413,7 @@ static int max77976_set_charger_protection(const struct device *dev, int *val)
         return -1;
     }
     buf[0] = CHG_CNFG_06;
-    buf[1] = (*val == 0) ? 0x00 : 0x0C;
+    buf[1] = (*val == 0) ? 0x0C : 0x00;
 
     err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
