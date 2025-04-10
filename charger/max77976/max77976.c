@@ -440,7 +440,7 @@ static int max77976_set_termination_voltage(const struct device *dev, int *val)
     const struct max77976_config *cfg = dev->config;
 
     buf[0] = CHG_CNFG_04;
-    buf[1] = 0x14 | 0x20;     // this will set the limit to 4.40V
+    buf[1] = 0x1C | 0x20;     // this will set the limit to 4.20V
 
     err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
@@ -475,7 +475,7 @@ static int max77976_set_CC(const struct device *dev, int *val)
     max_cc += 2;
     max77976_set_input_reg_current(dev, &max_cc);
 
-    // 4. Termination Voltage: (CHG_CNFG_04) reg 0x1A, bit 6
+    // 4. Termination Voltage: (CHG_CNFG_04) reg 0x1C, bit 6
     max77976_set_termination_voltage(dev, &max_cc);
 
     // 5. Charger Protection - Lock: (CHG_CNFG_06) reg 0x1C, bits 2,3)
