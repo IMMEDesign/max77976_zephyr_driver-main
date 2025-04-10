@@ -506,7 +506,9 @@ static int max77976_set_CC(const struct device *dev, int *val)
 //    max77976_get_charge_control_limit(dev, &temp);        // !dbg!
 
     // 3. Input Limit: (CHG_CNFG_09) reg 0x1F
-    max_cc += 2;
+    if (max_cc < 0x4D) {
+        max_cc += 20;       // Add 1 amp
+    }
     max77976_set_input_reg_current(dev, &max_cc);
 
     // 3b. Verify
