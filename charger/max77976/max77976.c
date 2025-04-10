@@ -503,20 +503,20 @@ static int max77976_set_CC(const struct device *dev, int *val)
     max77976_set_charge_control_limit(dev, &max_cc);
 
     // 2b. Verify
-    max77976_get_charge_control_limit(dev, &temp);        // !dbg!
+//    max77976_get_charge_control_limit(dev, &temp);        // !dbg!
 
     // 3. Input Limit: (CHG_CNFG_09) reg 0x1F
     max_cc += 2;
     max77976_set_input_reg_current(dev, &max_cc);
 
     // 3b. Verify
-    max77976_get_input_reg_current(dev, &temp);        // !dbg!
+//    max77976_get_input_reg_current(dev, &temp);        // !dbg!
 
     // 4. Termination Voltage: (CHG_CNFG_04) reg 0x1C, bit 6
     max77976_set_termination_voltage(dev, &max_cc);
 
     // 4b. Verify
-    max77976_get_CHG_CNFG_04(dev, &temp);        // !dbg!
+//    max77976_get_CHG_CNFG_04(dev, &temp);        // !dbg!
 
     // 5. Charger Protection - Lock: (CHG_CNFG_06) reg 0x1C, bits 2,3)
     lock = 1;
