@@ -547,7 +547,7 @@ static int max77976_get_CONFIG_00(const struct device *dev, int *val)
         return err;
     }
     *val = read_buff[0];
-
+    return 0;
 }
 // .................................................................................
 // Set the mode
@@ -630,9 +630,10 @@ static int max77976_set_property(const struct device *dev, const charger_prop_t 
         break;
     case CHARGER_PROP_CHARGE_TYPE:
         err = max77976_set_mode(dev, val->charge_type);
+        break;
     default:
         err = -EINVAL;
-}
+    }
 
 return err;
 };
