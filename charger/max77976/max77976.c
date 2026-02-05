@@ -623,6 +623,16 @@ static int max77976_set_ship_mode(const struct device *dev, int val)
     buf[1] = old;
 
     err = i2c_write_dt(&cfg->i2c, buf, 2);
+
+
+    if(err < 0) 
+    {
+        return err;
+    }
+    err = max77976_get_CONFIG_07(dev, &old);
+
+
+
     return err;
 }
 // .................................................................................
