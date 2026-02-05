@@ -547,7 +547,30 @@ static int max77976_get_CONFIG_00(const struct device *dev, int *val)
         return err;
     }
     *val = read_buff[0];
-    return 0;
+    return err;
+}
+// .................................................................................
+// Read register CHG_CNFG_07
+// .................................................................................
+static int max77976_get_CONFIG_07(const struct device *dev, int *val)
+{
+    int err;
+
+    uint8_t write_buff[1];
+    uint8_t read_buff[1];
+
+    write_buff[0] = CHG_CNFG_07;
+
+    const struct max77976_config *cfg = dev->config;
+
+    err = i2c_write_read_dt(&cfg->i2c, write_buff, 1, read_buff, 1);
+
+    if(err < 0) 
+    {
+        return err;
+    }
+    *val = read_buff[0];
+    return err;
 }
 // .................................................................................
 // Set the mode
@@ -577,8 +600,30 @@ static int max77976_set_mode(const struct device *dev, int val)
 
     err = i2c_write_dt(&cfg->i2c, buf, 2);
     return err;
+}
+// ................................................................................
+// Set ship mode flag  .
+// .................................................................................
+static int max77976_set_ship_mode(const struct device *dev, int val)
+{
+    int err, old;
+    uint8_t buf[2];
 
+    const struct max77976_config *cfg = dev->config;
 
+    err = max77976_get_CONFIG_07(dev, &old);
+    if(err < 0) 
+    {
+        return err;
+    }
+
+    old = old | 0x01;
+
+    buf[0] = CHG_CNFG_07;
+    buf[1] = old;
+
+    err = i2c_write_dt(&cfg->i2c, buf, 2);
+    return err;
 }
 // .................................................................................
 
@@ -630,6 +675,9 @@ static int max77976_set_property(const struct device *dev, const charger_prop_t 
         break;
     case CHARGER_PROP_CHARGE_TYPE:
         err = max77976_set_mode(dev, val->charge_type);
+        break;
+    case CHARGER_PROP_CUSTOM_BEGIN+1:
+        err = max77976_set_ship_mode(dev, val->charge_type);
         break;
     default:
         err = -EINVAL;
